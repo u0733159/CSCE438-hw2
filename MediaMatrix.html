@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Welcome to MediaMatrix!</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+	<h1 id="title"> MediaMatrix </h1>
+	<p id="prompt"> Begin your search in the search bar. </p>
+	<p id="searchshit">
+		Search: <input type="text" id="searchdata" class="bar" autofocus><br>
+	</p>
+	<p id="buttons">
+		<input type="button" id="musicBut" value="Music" class="button">
+		<input type="button" id="movieBut" value="Movie" class="button">
+	</p>
+	<p id="buttonsR">
+		<input type="button" id="backBut" value="Back to Search" class="button2">
+	</p>
+	<p id="moresearchshit">
+		*Please enter the title with proper capitalization and spacing for best search results.
+	</p>
+	<img id="band" src="" />
+	<p class = "musicData" id="bio"></p>
+	<p class = "musicData" id="members"></p>
+	<p class = "musicData" id="origin"></p>
+	<p class = "musicData" id="yearFormed"></p>
+	<p class = "musicData" id="genre"></p>
+	<h2 class = "musicData">Top Ten Albums</h2>
+	<ol class = "musicData" id="TopAlbums"  type="I"></ol>
+	
+	<img id="backdrop" src=""/>
+	<img id="poster" src=""/>
+	<p class = "movieData" id="release"></p>
+	<p class = "movieData" id="ratingAvg"></p>
+	<p class = "movieData" id="totalRatings"></p>
+	<script src="jquery-1.11.2.js"></script>
+	<script src="themoviedb.js"></script>
+	<script src="lastfm.api.js"></script>
+	<script src="lastfm.api.md5.js"></script>
+	<script type="text/javascript" src="lastfm.api.cache.js"></script>
+	<script src="Controller.js"></script>
+</body>
+
+</html>
+	
