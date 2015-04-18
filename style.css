@@ -12,7 +12,7 @@ h1#title{
 	font-size: 72px;
 }
 p#prompt {
-	color: orange;
+	color: blue;
 	text-align: center;
 	font-size: 24px;
 }
@@ -22,7 +22,6 @@ p#searchshit {
 	font-size: 24px;
 	text-align: center;
 }
-
 
 p#moresearchshit {
 	text-align: center;
@@ -42,18 +41,29 @@ p#dataResults {
 }
 
 p.movieData {
-	color: red;
+	color: blue;
 	text-align: center;
 	font-family: comic sans MS;
 }
 
-p.musicData {
-	color: red;
+p.castandbio {
+	color: blue;
 	font-family: comic sans MS;
+	font-size: 24px;
+}
+ p.musicData {
+	color: green;
+	font-family: comic sans MS;
+	font-size: 24px;
+}
+
+.musicDataAlbums { 
+	text-align: center;
+	color: green;
 }
 
 .bar {
-	text-align: right;
+	text-align: left;
 }
 
 .button {

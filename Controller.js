@@ -3,6 +3,7 @@
 /*------------------------------------------*/
 var movieData = '';
 var movieBackdrop = 'http://image.tmdb.org/t/p/w185';
+var youtubeTrailers = 'http://www.youtube.com/v/'
 
 /* Create a cache object */
 var cache = new LastFMCache();
@@ -47,7 +48,7 @@ else {
 }
 
 function add_top_albums(data){
-   $("ol").empty();
+   $("ul").empty();
    var list = document.getElementById('TopAlbums');
    size=10;
    if(data.topalbums.album.length<10){size=data.topalbums.album.length;}
@@ -187,9 +188,13 @@ else {
 
 // Function for when the back button is clicked
 function backFun() {
+	document.getElementById("YTTrailer").data = "";
 	hideResults();
 	hideMusicResults();
 	document.getElementById("title").innerHTML = "MediaMatrix"
+	document.getElementById("credits").innerHTML = "<b><u>CAST:</b></u><br>";
+	document.getElementById("Reviews").innerHTML = "<b><u>REVIEWS:</b></u><br>";
+	document.getElementById("similarMovies").innerHTML = "<b><u>SIMILAR MOVIES:</b></u><br>";
 	displayOpening();
 }
 
@@ -198,6 +203,10 @@ function displayResults() {
 	document.getElementById("buttonsR").style.display = "block";
 	document.getElementById("backdrop").style.display = "inline";
 	document.getElementById("poster").style.display = "inline";
+	document.getElementById("credits").style.display = "block";
+	document.getElementById("Reviews").style.display = "block";
+	document.getElementById("YTTrailer").style.display = "block";
+	document.getElementById("similarMovies").style.display = "block";
 	var elems = document.getElementsByClassName("movieData");
 	for(i = 0 ; i < elems.length; i++) {
 		elems[i].style.display = "block";
@@ -209,9 +218,17 @@ function hideResults() {
 	document.getElementById("buttonsR").style.display = "none";
 	document.getElementById("backdrop").style.display = "none";
 	document.getElementById("poster").style.display = "none";
+	document.getElementById("credits").style.display = "none";
+	document.getElementById("Reviews").style.display = "none";
+	document.getElementById("YTTrailer").style.display = "none";
+	document.getElementById("similarMovies").style.display = "none";
 	var elems = document.getElementsByClassName("movieData");
 	for(i = 0; i < elems.length; i++) {
 		elems[i].style.display = "none";
+	}
+	var elems2 = document.getElementsByClassName("musicData");
+	for(i = 0; i < elems2.length; ++i) {
+		elems2[i].style.display = "none";
 	}
 }
 
@@ -223,6 +240,10 @@ function displayMusicResults() {
 	for(i = 0 ; i < elems.length; i++) {
 		elems[i].style.display = "block";
 	}
+	var elems2 = document.getElementsByClassName("musicDataAlbums");
+	for(i = 0 ; i < elems2.length; i++) {
+		elems2[i].style.display = "block";
+	}
 }
 
 // Hide the elements of the data screen
@@ -233,8 +254,21 @@ function hideMusicResults() {
 	for(i = 0; i < elems.length; i++) {
 		elems[i].style.display = "none";
 	}
+	var elems2 = document.getElementsByClassName("musicDataAlbums");
+	for(i = 0; i < elems2.length; i++) {
+		elems2[i].style.display = "none";
+	}
+	$("#TopAlbums").remove();
 }
 
+function cleanUp() {
+	var elems = document.getElementsByClassName("movieData");
+	for(i = 0; i < elems.length; ++i) {
+		elems[i].innerHTML = '';
+	}
+	document.getElementById("backdrop").src = '';
+	document.getElementById("poster").src = '';
+}
 /*-----------------------------------------*/
 /*		CALLBACKS	  					   */
 /*-----------------------------------------*/
@@ -243,10 +277,70 @@ function hideMusicResults() {
 function success(data) {
 	console.log("Success callback");
 	almostData = $.parseJSON(data);
-	movieData = JSON.stringify(almostData);
-	parseSearchData(movieData);
+	console.log(almostData);
+	if(almostData.results.length != 0) {
+		movieData = JSON.stringify(almostData.results[0]);
+		parseSearchData(movieData);
+	}
+	else {
+		alert("Movie was not found please check spelling and try again.")
+		cleanUp();
+	}
 }
 
+// Success for finding the credits by ID
+function successID(data) {
+	console.log("Successfully found Movie ID!");
+	almostData = $.parseJSON(data);
+	for (j = 0; j < parseInt(almostData.cast.length); ++j) {
+		creditsData = JSON.stringify(almostData.cast[j]);
+		parseCreditData(creditsData);
+	}
+}
+
+// Success callback for getting the Reviews
+function successReviews(data) {
+	console.log("Successfully found Reviews!");
+	almostData = $.parseJSON(data);
+	if (almostData.results.length == 0) {
+		parseReviewData("none");
+	}
+	else {
+		for(j = 0; j < parseInt(almostData.results.length); ++j) {
+			reviewData = JSON.stringify(almostData.results[j]);
+			parseReviewData(reviewData);
+		}
+	}
+}
+
+// Success callback for getting the Trailers
+function successTrailers(data) {
+	console.log("Successfully found Trailers!");
+	almostData = $.parseJSON(data);
+	if(almostData.quicktime.length == 0 && almostData.youtube.length == 0) {
+		parseTrailerData("none");
+	}
+	else{
+		trailerData = JSON.stringify(almostData.youtube[0]);
+		parseTrailerData(trailerData);
+	}
+}
+
+// Success callback for getting similar movies
+function successSimilar(data) {
+	console.log("Successfully found similar movies!");
+	almostData = $.parseJSON(data);
+	console.log(almostData);
+	if(almostData.results.length == 0) {
+		parseSimilarData("none");
+	}
+	else {
+		for(j = 0; j < almostData.results.length; ++j) {
+			similarData = JSON.stringify(almostData.results[j]);
+			parseSimilarData(similarData);
+		}
+	}
+}
 
 // Failure callback for if movie is not found or error occurs
 function error(data) {
@@ -289,7 +383,6 @@ function parseSearchData(data) {
 	var element = ''
 	for (i = 0; i < data.length; i++) {
 		if(data.charAt(i) == ':') {
-			console.log(element);
 			checkElementAndAssign(element, i, data);
 			element = ''
 		}
@@ -302,6 +395,105 @@ function parseSearchData(data) {
 		else if(data.charAt(i) == '}') {
 			i = data.length;
 		}
+	}
+}
+
+// Parse the JSON string and get the elements required
+function parseCreditData(data) {
+	var element = '';
+	for (i = 0; i < data.length; i++) {
+		if(data.charAt(i) == ':') {
+			checkCreditAndAssign(element, i, data);
+			element = '';
+		}
+		else if(isLetter(data.charAt(i))) {
+			element = element + data.charAt(i);
+		}
+		else if(data.charAt(i) == ',') {
+			element = '';
+		}
+		else if(data.charAt(i) == '}') {
+			break;
+		}
+	}
+}
+
+// Parse the review data
+function parseReviewData(data) {
+	if (data == "none") {
+		document.getElementById("Reviews").innerHTML = document.getElementById("Reviews").innerHTML + "No Reviews for this movie."
+	}
+	else {
+		var element = '';
+		for(i = 0; i< data.length; ++i) {
+			if(data.charAt(i) == ':') {
+				checkReviewAndAssign(element, i, data);
+				element = '';
+			}
+			else if(isLetter(data.charAt(i))) {
+				element = element + data.charAt(i);
+			}
+			else if(data.charAt(i) == ',') {
+				element = '';
+			}
+			else if(data.charAt(i) == '}') {
+				break;
+			}
+		}	
+	}
+}
+
+// Parse the trailer data
+function parseTrailerData(data) {
+	if(data == "none") {
+	}
+	else {
+		var element = '';
+		for(i = 0; i < data.length; ++i) {
+			if(data.charAt(i) == ':') {
+				if(element == "source") {
+					placeTrailer(i, data);
+					break;
+				}
+			}
+			else if(isLetter(data.charAt(i))) {
+				element = element + data.charAt(i);
+			}
+			else if(data.charAt(i) == ',') {
+				element = '';
+			}
+			else if(data.charAt(i) == '}') {
+				break;
+			}
+		}
+	}
+}
+
+// Parse the similar movies data
+function parseSimilarData(data) {
+	if (data == "none") {
+		document.getElementById("similarMovies").innerHTML = document.getElementById("similarMovies").innerHTML + "No similar movies to this movie."
+	}
+	else {
+		var element = '';
+		for(i = 0; i< data.length; ++i) {
+			if(data.charAt(i) == ':') {
+				console.log
+				if(element == "title") {
+					placeSimilarTitle(i, data);
+					break;
+				}
+			}
+			else if(isLetter(data.charAt(i))) {
+				element = element + data.charAt(i);
+			}
+			else if(data.charAt(i) == ',') {
+				element = '';
+			}
+			else if(data.charAt(i) == '}') {
+				break;
+			}
+		}	
 	}
 }
 
@@ -324,6 +516,30 @@ function checkElementAndAssign(element,ind,data) {
 	}
 	if (element == "votecount") {
 		placeTotalRating(ind, data);
+	}
+	if (element == "id") {
+		saveIDandSearch(ind, data);
+	}
+}
+
+
+// Checks the credit element then asssigns it to its spot
+function checkCreditAndAssign(element, ind, data) {
+	if(element == "character") {
+		placeCharacter(ind, data);
+	}
+	if(element == "name") {
+		placeName(ind, data);
+	}
+}
+
+// Check the review element and assigns it to its spot
+function checkReviewAndAssign(element, ind, data) {
+	if(element == "author") {
+		placeAuthor(ind, data);
+	}
+	if(element == "content") {
+		placeContent(ind, data);
 	}
 }
 
@@ -409,6 +625,119 @@ function placeTotalRating(ind, data) {
 		}
 	}
 	document.getElementById("totalRatings").innerHTML = "Total number of ratings: " + value;
+}
+
+// Places the name of a similar movie title into the HTML page
+function placeSimilarTitle(ind, data) {
+	var value = '';
+	for(i = ind+1; i < data.length; ++i) {
+		if(data.charAt(i) == ',') {
+			break;
+		}
+		else if(data.charAt(i) != '"') {
+			value = value + data.charAt(i);
+		}
+	}
+	value = value + "<br>";
+	document.getElementById("similarMovies").innerHTML = document.getElementById("similarMovies").innerHTML + value;
+}
+
+// Save the Movie ID and search for its credits to get cast
+function saveIDandSearch(ind, data) {
+	var value = '';
+	for(i = ind+1; i < data.length; i++) {
+		if(data.charAt(i) == ',') {
+			break;
+		}
+		else if(data.charAt(i) != '"' && data.charAt(i) != ',') {
+			value = value + data.charAt(i);
+		}
+	}
+	savedMovieID = value;
+	theMovieDb.movies.getCredits({"id": savedMovieID}, successID, error);
+	theMovieDb.movies.getReviews({"id": savedMovieID}, successReviews, error);
+	theMovieDb.movies.getTrailers({"id": savedMovieID}, successTrailers, error);
+	theMovieDb.movies.getSimilarMovies({"id": savedMovieID}, successSimilar, error);
+}
+
+// Places the characters name in the movie.
+function placeCharacter(ind, data) {
+	var value = '';
+	for(i = ind+1; i < data.length; ++i) {
+		if(data.charAt(i) == ',') {
+			break;
+		}
+		else if(data.charAt(i) != '"' && data.charAt(i) != ',') {
+			value = value + data.charAt(i);
+		}
+	}
+	value = value + " - ";
+	document.getElementById("credits").innerHTML = document.getElementById("credits").innerHTML + value;
+}
+
+// Places the name of the character 
+function placeName(ind, data) {
+	var value = '';
+	for(i = ind+1; i < data.length; ++i) {
+		if(data.charAt(i) == ',') {
+			break;
+		}
+		else if(data.charAt(i) != '"' && data.charAt(i) != ',') {
+			value = value + data.charAt(i);
+		}
+	}
+	value = value + "<br>";
+	document.getElementById("credits").innerHTML = document.getElementById("credits").innerHTML + value;
+}
+
+// Places the author of reviews name in the HTML code
+function placeAuthor(ind, data) {
+	var value = '';
+	for(i = ind+1; i <data.length; ++i) {
+		if(data.charAt(i) == ',') {
+			break;
+		}
+		else if(data.charAt(i) != '"' && data.charAt(i) != ',') {
+			value = value + data.charAt(i);
+		}
+	}
+	value = value + " - "
+	document.getElementById("Reviews").innerHTML = document.getElementById("Reviews").innerHTML + value;
+}
+
+// Places the content of the review after the authors name.
+function placeContent(ind, data) {
+	var value = '';
+	for(i = ind+1; i < data.length; ++i) {
+		if(data.charAt(i) == '"') {
+			if(data.charAt(i+1) == ",") {
+				break;
+			}
+		}
+		else if(data.charAt(i) == "\\") {
+			++i;
+		}
+		else if(data.charAt(i) != '"' && data.charAt(i) != ',' && data.charAt(i) != '\\') {
+			value = value + data.charAt(i);
+		}
+	}
+	value = value + "<br><br>"
+	document.getElementById("Reviews").innerHTML = document.getElementById("Reviews").innerHTML + value;
+}
+
+// Places the trailer into the web page
+function placeTrailer(ind, data) {
+	var value = ''
+	for(i = ind+1; i < data.length; ++i) {
+		if(data.charAt(i) == ',') {
+			break;
+		}
+		else if(data.charAt(i) != '"' && data.charAt(i) != ',') {
+			value = value + data.charAt(i);
+		}
+	}
+	value = youtubeTrailers + value;
+	document.getElementById("YTTrailer").data = value;
 }
 
 // Checks if a char is a letter a-z
