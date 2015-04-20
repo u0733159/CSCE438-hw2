@@ -71,6 +71,7 @@ function musicFun() {
 	var parsedData = parseForSearch(searchData);
 	document.getElementById("title").innerHTML = searchData;
 	/* Load some artist info. */
+	console.log(searchData);
 	lastfm.artist.getInfo({artist: searchData}, {success: function(data){
   /* Use data. */
   console.log("Success callback");
@@ -191,6 +192,8 @@ function backFun() {
 	document.getElementById("YTTrailer").data = "";
 	hideResults();
 	hideMusicResults();
+	//document.getElementById("searchdata").innerHTML = "none";
+
 	document.getElementById("title").innerHTML = "MediaMatrix"
 	document.getElementById("credits").innerHTML = "<b><u>CAST:</b></u><br>";
 	document.getElementById("Reviews").innerHTML = "<b><u>REVIEWS:</b></u><br>";
@@ -234,11 +237,12 @@ function hideResults() {
 
 // Display the elements of the data screen
 function displayMusicResults() {
+	document.getElementById("TopAlbums").style.display = "block";
 	document.getElementById("buttonsR").style.display = "block";
 	document.getElementById("band").style.display = "inline";
 	var elems = document.getElementsByClassName("musicData");
 	for(i = 0 ; i < elems.length; i++) {
-		elems[i].style.display = "block";
+		elems[i].style.display = "block";	
 	}
 	var elems2 = document.getElementsByClassName("musicDataAlbums");
 	for(i = 0 ; i < elems2.length; i++) {
@@ -248,17 +252,22 @@ function displayMusicResults() {
 
 // Hide the elements of the data screen
 function hideMusicResults() {
+	$("ul").empty();
+	document.getElementById("TopAlbums").style.display = "none";
 	document.getElementById("buttonsR").style.display = "none";
 	document.getElementById("band").style.display = "none";
+	//document.getElementById("searchshit").value = "";
+	document.getElementById("band").innerHTML = " ";
 	var elems = document.getElementsByClassName("musicData");
 	for(i = 0; i < elems.length; i++) {
 		elems[i].style.display = "none";
+		elems[i].innerHTML=" ";
 	}
-	var elems2 = document.getElementsByClassName("musicDataAlbums");
-	for(i = 0; i < elems2.length; i++) {
-		elems2[i].style.display = "none";
-	}
-	$("#TopAlbums").remove();
+	var elems2 = document.getElementById("MusicAblums");
+	elems2.style.display = "none";
+	//$("#TopAlbums").remove();
+	var elems3 = document.getElementById("band");
+	elems3.src="";
 }
 
 function cleanUp() {
@@ -275,6 +284,7 @@ function cleanUp() {
 
 // Success callback for if movie is found
 function success(data) {
+	console.log("Entering success function");
 	console.log("Success callback");
 	almostData = $.parseJSON(data);
 	console.log(almostData);
