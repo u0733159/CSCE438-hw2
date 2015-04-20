@@ -47,38 +47,56 @@ else {
 	alert("Error the movie button is undefined!\n Try reloading the web page.");
 }
 
-function add_top_albums(data){
+function add_top_albums(data)
+{
    $("ul").empty();
    var list = document.getElementById('TopAlbums');
    size=10;
-   if(data.topalbums.album.length<10){size=data.topalbums.album.length;}
-   for(i=0; i<10; i++){
-   var newitem=document.createElement("li");
-   var a = document.createElement("a");
-   a.textContent = data.topalbums.album[i].name;
-   //console.log(data.topalbums.album[i].url);
-   a.setAttribute('href',data.topalbums.album[i].url);
-   a.setAttribute('target',"_blank");
-   newitem.appendChild(a);
-   list.appendChild(newitem);
-  }
- }
+   if(typeof data.topalbums.album != "undefined")
+   {
+		console.log("There is album");
+		if(data.topalbums.album.length<10)
+		{
+			size=data.topalbums.album.length;
+			console.log(size);
+		}
+	   
+	   //if(data.album.length<10){size=data.topalbums.album.length;}
+	   console.log(size);
+	   for(i=0; i<size; i++)
+	   {
+		   var newitem=document.createElement("li");
+		   var a = document.createElement("a");
+		   a.textContent = data.topalbums.album[i].name;
+		   //console.log(data.topalbums.album[i].url);
+		   a.setAttribute('href',data.topalbums.album[i].url);
+		   a.setAttribute('target',"_blank");
+		   newitem.appendChild(a);
+		   list.appendChild(newitem);
+	   }
+   }
+   else{
+	
+   }
+}
 
 // Function for when the music button is clicked
 // Change title to the title of the search data
 function musicFun() {
 	searchData = document.getElementById("searchdata").value;
+	console.log(searchData);
 	var parsedData = parseForSearch(searchData);
+	console.log(parsedData);
 	document.getElementById("title").innerHTML = searchData;
 	/* Load some artist info. */
-	console.log(searchData);
 	lastfm.artist.getInfo({artist: searchData}, {success: function(data){
   /* Use data. */
-  console.log("Success callback");
+   console.log("Success callback");
    console.log(data);
  
    console.log("1");
    if (typeof data.artist.image != "undefined") {
+	   console.log(data.artist.image[3]["#text"]);
 	   document.getElementById("band").src = data.artist.image[3]["#text"];
    }
    
@@ -127,7 +145,6 @@ function musicFun() {
    lastfm.artist.getTopAlbums({artist: searchData}, {success: function(data1){
 	 /* Use data. */
 	 console.log("Success callback albums");
-	  console.log(data1);
 	  console.log("1");
 	 add_top_albums(data1);
 		
